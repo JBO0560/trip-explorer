@@ -32,7 +32,7 @@ export interface AccommodationInfo {
 export interface TripLeg {
   id: string;
   name: string;
-  country: 'Korea' | 'Japan' | string;
+  country: string;
   approxDays: number;
   startDate?: string;
   endDate?: string;

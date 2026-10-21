@@ -9,6 +9,14 @@ export default defineConfig({
     react(),
     tailwindcss()
   ],
+  server: {
+    port: 5188,
+    strictPort: true,
+  },
+  preview: {
+    port: 5188,
+    strictPort: true,
+  },
   test: {
     environment: 'happy-dom'
   }

@@ -13,6 +13,7 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { TripLeg, TransferConnection } from '../types/trip';
 import { getCurvedFlightPath } from './geoUtils';
+import { getCountryMeta } from '../utils/countryFlags';
 
 export interface TripMapProps {
   legs: TripLeg[];
@@ -54,18 +55,7 @@ const MapController: React.FC<{
 
 // Create custom DOM Marker Icon with number and country styling
 function createLegIcon(leg: TripLeg, index: number, isActive: boolean) {
-  let flag = '🌏';
-  let badgeColor = 'bg-sky-500';
-  if (leg.country.toLowerCase().includes('korea')) {
-    flag = '🇰🇷';
-    badgeColor = 'bg-rose-500';
-  } else if (leg.country.toLowerCase().includes('japan')) {
-    flag = '🇯🇵';
-    badgeColor = 'bg-red-500';
-  } else if (leg.country.toLowerCase().includes('australia')) {
-    flag = '🇦🇺';
-    badgeColor = 'bg-emerald-600';
-  }
+  const { flag, badgeColor } = getCountryMeta(leg.country);
   const ringColor = isActive ? 'ring-4 ring-indigo-400 scale-110' : 'ring-2 ring-slate-800';
 
   const html = `
@@ -128,9 +118,16 @@ export const TripMap: React.FC<TripMapProps> = ({
   onSelectLeg,
   className = '',
 }) => {
-  // Default bounds covering Seoul to Tokyo
-  const defaultCenter: [number, number] = [36.2, 133.0]; // Center point in Sea of Japan / East Sea between Korea & Honshu
-  const defaultZoom = 6;
+  // Default initial center point (calculated dynamically from trip legs if present, or global fallback)
+  const defaultCenter: [number, number] = useMemo(() => {
+    if (legs.length > 0) {
+      const avgLat = legs.reduce((acc, l) => acc + l.coordinates[0], 0) / legs.length;
+      const avgLng = legs.reduce((acc, l) => acc + l.coordinates[1], 0) / legs.length;
+      return [avgLat, avgLng];
+    }
+    return [30.0, 30.0];
+  }, [legs]);
+  const defaultZoom = legs.length > 0 ? 5 : 3;
 
   // Active leg POIs (if any have coordinates)
   const activeLeg = useMemo(() => legs.find((l) => l.id === activeLegId), [legs, activeLegId]);
@@ -248,9 +245,10 @@ export const TripMap: React.FC<TripMapProps> = ({
             );
           }
 
-          // Rail / Train transfers (KTX & Shinkansen)
+          // Rail / Train transfers
           const isKTX = fromLeg.name.includes('Seoul') || toLeg.name.includes('Seoul');
-          const lineColor = isKTX ? '#f59e0b' : '#6366f1'; // Amber for KTX, Indigo for Shinkansen
+          const isHighSpeed = isKTX || fromLeg.name.includes('Tokyo') || toLeg.name.includes('Tokyo');
+          const lineColor = isKTX ? '#f59e0b' : isHighSpeed ? '#6366f1' : '#10b981';
 
           return (
             <Polyline

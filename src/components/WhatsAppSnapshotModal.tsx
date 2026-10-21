@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { TripData } from '../types/trip';
+import { getCountryMeta } from '../utils/countryFlags';
 import {
   X,
   Share2,
@@ -54,10 +55,8 @@ export const WhatsAppSnapshotModal: React.FC<WhatsAppSnapshotModalProps> = ({
   // Derive country flags
   const countries = Array.from(new Set(trip.legs.map((l) => l.country)));
   const countryBadges = countries.map((c) => {
-    if (c.toLowerCase().includes('korea')) return { name: c, flag: '🇰🇷' };
-    if (c.toLowerCase().includes('japan')) return { name: c, flag: '🇯🇵' };
-    if (c.toLowerCase().includes('australia')) return { name: c, flag: '🇦🇺' };
-    return { name: c, flag: '🌏' };
+    const meta = getCountryMeta(c);
+    return { name: c, flag: meta.flag };
   });
 
   const handleCopyImage = async () => {
@@ -357,13 +356,7 @@ export const WhatsAppSnapshotModal: React.FC<WhatsAppSnapshotModalProps> = ({
                   </div>
 
                   <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-slate-800 text-white border border-slate-700 flex items-center gap-1">
-                    {currentLeg.country.toLowerCase().includes('korea')
-                      ? '🇰🇷'
-                      : currentLeg.country.toLowerCase().includes('japan')
-                      ? '🇯🇵'
-                      : currentLeg.country.toLowerCase().includes('australia')
-                      ? '🇦🇺'
-                      : '🌏'}
+                    {getCountryMeta(currentLeg.country).flag}
                     <span>{currentLeg.country}</span>
                   </span>
                 </div>
