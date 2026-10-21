@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { useTripData } from './hooks/useTripData';
-import { MapPin, Calendar, Plane, Train, Camera } from 'lucide-react';
+import { MapPin, Calendar, Camera } from 'lucide-react';
 import { TripMap } from './components/TripMap';
 import { WhatsAppSnapshotModal } from './components/WhatsAppSnapshotModal';
+import { TransferTimelineCard } from './components/TransferTimelineCard';
 
 export const App: React.FC = () => {
   const { trip } = useTripData();
@@ -11,7 +12,6 @@ export const App: React.FC = () => {
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
 
   const activeLeg = trip.legs.find((l) => l.id === activeLegId) || trip.legs[0];
-
   const totalDays = trip.legs.reduce((acc, leg) => acc + (leg.approxDays || 0), 0);
 
   return (
@@ -47,7 +47,7 @@ export const App: React.FC = () => {
       </header>
 
       {/* Main Content Area */}
-      <div className="flex-1 flex overflow-hidden">
+      <div className="flex-1 flex overflow-hidden relative">
         {/* Left Sidebar: Itinerary & Legs */}
         <aside className="w-96 border-r border-slate-800 bg-slate-900/40 flex flex-col h-full overflow-y-auto">
           <div className="p-4 border-b border-slate-800/80">
@@ -94,16 +94,9 @@ export const App: React.FC = () => {
                     </div>
                   </div>
 
-                  {/* Transfer indicator */}
+                  {/* Transfer Timeline Card (Segmented Journey style) */}
                   {transferAfter && (
-                    <div className="flex items-center gap-2 px-3 py-1.5 text-xs text-slate-400 bg-slate-950/50 rounded-lg border border-slate-800/50">
-                      {transferAfter.type === 'flight' ? (
-                        <Plane className="w-3.5 h-3.5 text-sky-400" />
-                      ) : (
-                        <Train className="w-3.5 h-3.5 text-amber-400" />
-                      )}
-                      <span className="font-medium text-slate-300">{transferAfter.notes}</span>
-                    </div>
+                    <TransferTimelineCard transfer={transferAfter} />
                   )}
                 </div>
               );

@@ -42,6 +42,13 @@ function loadInitialTrip(): TripData {
     if (saved) {
       const parsed = JSON.parse(saved);
       if (parsed && Array.isArray(parsed.legs) && Array.isArray(parsed.transfers)) {
+        // If the saved trip does not include the Hamburg departure or the Sydney leg, load the updated initial trip
+        const hasHamburg = parsed.legs.some((l: TripLeg) => l.id === 'hamburg');
+        const hasSydney = parsed.legs.some((l: TripLeg) => l.id === 'sydney');
+        const hasDurationOnTransfers = parsed.transfers.some((t: TransferConnection) => t.duration);
+        if (!hasHamburg || !hasSydney || !hasDurationOnTransfers) {
+          return initialTripData;
+        }
         return parsed as TripData;
       }
     }

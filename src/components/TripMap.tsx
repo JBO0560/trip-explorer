@@ -54,9 +54,18 @@ const MapController: React.FC<{
 
 // Create custom DOM Marker Icon with number and country styling
 function createLegIcon(leg: TripLeg, index: number, isActive: boolean) {
-  const isKorea = leg.country === 'Korea';
-  const flag = isKorea ? '🇰🇷' : '🇯🇵';
-  const badgeColor = isKorea ? 'bg-rose-500' : 'bg-red-500';
+  let flag = '🌏';
+  let badgeColor = 'bg-sky-500';
+  if (leg.country.toLowerCase().includes('korea')) {
+    flag = '🇰🇷';
+    badgeColor = 'bg-rose-500';
+  } else if (leg.country.toLowerCase().includes('japan')) {
+    flag = '🇯🇵';
+    badgeColor = 'bg-red-500';
+  } else if (leg.country.toLowerCase().includes('australia')) {
+    flag = '🇦🇺';
+    badgeColor = 'bg-emerald-600';
+  }
   const ringColor = isActive ? 'ring-4 ring-indigo-400 scale-110' : 'ring-2 ring-slate-800';
 
   const html = `
@@ -97,6 +106,21 @@ function createFlightBadgeIcon(label: string) {
   });
 }
 
+function createLayoverBadgeIcon(label: string) {
+  const html = `
+    <div class="flex items-center gap-1 bg-amber-600/90 hover:bg-amber-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-md border border-amber-300/40 cursor-pointer backdrop-blur transition-transform hover:scale-105 whitespace-nowrap">
+      <span>🔄</span>
+      <span>${label}</span>
+    </div>
+  `;
+  return L.divIcon({
+    html,
+    className: 'custom-layover-badge',
+    iconSize: [110, 22],
+    iconAnchor: [55, 11],
+  });
+}
+
 export const TripMap: React.FC<TripMapProps> = ({
   legs,
   transfers,
@@ -124,12 +148,11 @@ export const TripMap: React.FC<TripMapProps> = ({
       >
         <MapController legs={legs} activeLegId={activeLegId} />
 
-        {/* Clean CartoDB Dark Matter / Positron or Voyager tiles */}
+        {/* Esri World Street Map tiles - global English labels, no API key required */}
         <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
-          url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
-          subdomains="abcd"
-          maxZoom={19}
+          attribution='Tiles &copy; Esri &mdash; Source: Esri, DeLorme, NAVTEQ, USGS, Intermap, iPC, NRCAN, Esri Japan, METI, Esri China (Hong Kong), Esri (Thailand), TomTom, 2012'
+          url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}"
+          maxZoom={18}
         />
 
         {/* Render Transfers */}
@@ -143,43 +166,79 @@ export const TripMap: React.FC<TripMapProps> = ({
             activeLegId === transfer.fromLegId || activeLegId === transfer.toLegId;
 
           if (isFlight) {
-            const flightArc = getCurvedFlightPath(
-              fromLeg.coordinates,
-              toLeg.coordinates,
-              30,
-              0.22
-            );
-            const midIndex = Math.floor(flightArc.length / 2);
-            const midPoint = flightArc[midIndex];
+            const hasLayoverCoords = Boolean(transfer.layover?.coordinates);
+            const flightArcs: [number, number][][] = hasLayoverCoords && transfer.layover?.coordinates
+              ? [
+                  getCurvedFlightPath(fromLeg.coordinates, transfer.layover.coordinates, 20, 0.18),
+                  getCurvedFlightPath(transfer.layover.coordinates, toLeg.coordinates, 20, 0.18),
+                ]
+              : [getCurvedFlightPath(fromLeg.coordinates, toLeg.coordinates, 30, 0.22)];
 
             return (
               <React.Fragment key={transfer.id}>
-                {/* Glow polyline for flight */}
-                <Polyline
-                  positions={flightArc}
-                  pathOptions={{
-                    color: '#0284c7', // Sky blue
-                    weight: isTransferActive ? 5 : 3.5,
-                    opacity: 0.85,
-                    dashArray: '8, 8',
-                    lineCap: 'round',
-                  }}
-                  eventHandlers={{
-                    click: () => onSelectLeg?.(transfer.toLegId),
-                  }}
-                >
-                  <Tooltip sticky>
-                    <div className="text-xs font-medium">
-                      ✈️ {transfer.notes || 'Flight Transfer'} ({fromLeg.name} &rarr; {toLeg.name})
-                    </div>
-                  </Tooltip>
-                </Polyline>
+                {/* Glow polyline(s) for flight route */}
+                {flightArcs.map((arc, arcIdx) => (
+                  <Polyline
+                    key={`${transfer.id}-arc-${arcIdx}`}
+                    positions={arc}
+                    pathOptions={{
+                      color: '#0284c7', // Sky blue
+                      weight: isTransferActive ? 5 : 3.5,
+                      opacity: 0.85,
+                      dashArray: '8, 8',
+                      lineCap: 'round',
+                    }}
+                    eventHandlers={{
+                      click: () => onSelectLeg?.(transfer.toLegId),
+                    }}
+                  >
+                    <Tooltip sticky>
+                      <div className="text-xs font-medium space-y-0.5">
+                        <div className="font-bold text-sky-300">
+                          ✈️ {transfer.transitCode || transfer.carrier || 'Flight Transfer'} ({fromLeg.name} &rarr; {toLeg.name})
+                        </div>
+                        {transfer.duration && (
+                          <div className="text-[11px] text-emerald-400 font-medium">
+                            ⏱️ Travel time: {transfer.duration}
+                          </div>
+                        )}
+                        {transfer.departureTime && transfer.arrivalTime && (
+                          <div className="text-[11px] text-slate-300 font-mono">
+                            🛫 {transfer.departureTime} &rarr; 🛬 {transfer.arrivalTime}
+                          </div>
+                        )}
+                        {transfer.layover && (
+                          <div className="text-[11px] text-amber-300">
+                            🔄 Layover: {transfer.layover.city || transfer.layover.airportCode}
+                            {transfer.layover.duration ? ` • ${transfer.layover.duration}` : ''}
+                          </div>
+                        )}
+                      </div>
+                    </Tooltip>
+                  </Polyline>
+                ))}
+
+                {/* Layover Waypoint Marker if intermediate coordinates are provided */}
+                {hasLayoverCoords && transfer.layover?.coordinates && (
+                  <Marker
+                    position={transfer.layover.coordinates}
+                    icon={createLayoverBadgeIcon(
+                      `${transfer.layover.airportCode || transfer.layover.city || 'Layover'}${
+                        transfer.layover.duration ? ` (${transfer.layover.duration})` : ''
+                      }`
+                    )}
+                  />
+                )}
 
                 {/* Mid-flight aircraft badge */}
-                {midPoint && (
+                {flightArcs[0] && (
                   <Marker
-                    position={midPoint}
-                    icon={createFlightBadgeIcon('Korea Strait')}
+                    position={flightArcs[0][Math.floor(flightArcs[0].length / 2)]}
+                    icon={createFlightBadgeIcon(
+                      transfer.id === 't-cross'
+                        ? 'Korea Strait'
+                        : transfer.transitCode || `${fromLeg.name} → ${toLeg.name}`
+                    )}
                     eventHandlers={{
                       click: () => onSelectLeg?.(toLeg.id),
                     }}

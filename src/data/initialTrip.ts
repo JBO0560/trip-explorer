@@ -3,9 +3,19 @@ import { TripData } from '../types/trip';
 export const initialTripData: TripData = {
   title: 'Korea & Japan Discovery',
   status: 'tentative',
-  overallDateRange: 'Spring 2027 (Approx. 18-20 Days)',
+  overallDateRange: 'Spring 2027 (Approx. 20-22 Days)',
   travelers: ['Jasper & Friends'],
   legs: [
+    {
+      id: 'hamburg',
+      name: 'Hamburg',
+      country: 'Germany',
+      approxDays: 1,
+      coordinates: [53.5511, 9.9937],
+      highlights: ['Elbphilharmonie', 'Speicherstadt', 'Departure Base'],
+      activities: [],
+      notes: 'Trip starting point / departure from Hamburg Airport (HAM).'
+    },
     {
       id: 'seoul',
       name: 'Seoul',
@@ -117,9 +127,82 @@ export const initialTripData: TripData = {
         name: 'Park Hotel Tokyo / Shinjuku Base',
         notes: 'Convenient transport hub near Yamanote line.'
       }
+    },
+    {
+      id: 'sydney',
+      name: 'Sydney',
+      country: 'Australia',
+      approxDays: 5,
+      coordinates: [-33.8688, 151.2093],
+      highlights: ['Sydney Opera House', 'Bondi Coastal Walk', 'Sydney Harbour Bridge', 'The Rocks Historic Precinct'],
+      activities: [
+        {
+          id: 'poi-sydney-1',
+          name: 'Sydney Opera House & Circular Quay',
+          category: 'culture',
+          notes: 'Architectural icon tour and harbour promenade.',
+          coordinate: [-33.8568, 151.2153]
+        },
+        {
+          id: 'poi-sydney-2',
+          name: 'Bondi to Coogee Coastal Walk',
+          category: 'nature',
+          notes: 'Clifftop ocean walk passing stunning beaches and rockpools.',
+          coordinate: [-33.8915, 151.2767]
+        }
+      ],
+      accommodation: {
+        name: 'Park Hyatt Sydney / Circular Quay Base',
+        notes: 'Harbour-front stay with views of the Opera House and Harbour Bridge.'
+      }
     }
   ],
   transfers: [
+    {
+      id: 't-ham-seoul',
+      fromLegId: 'hamburg',
+      toLegId: 'seoul',
+      type: 'flight',
+      status: 'tentative',
+      notes: 'Finnair connection via Helsinki (AY1424 & AY041)',
+      carrier: 'Finnair',
+      transitCode: 'AY1424 / AY041',
+      departureTime: '12:30',
+      arrivalTime: '11:20 (+1)',
+      departureTerminal: 'HAM Terminal 1',
+      arrivalTerminal: 'ICN Terminal 1',
+      duration: '15h 50m (total incl. layover)',
+      seatNotes: 'Overnight connection via Helsinki (HEL)',
+      layover: {
+        city: 'Helsinki',
+        airportCode: 'HEL',
+        duration: '2h 10m',
+        coordinates: [60.3172, 24.9633],
+        notes: 'Layover at Helsinki Vantaa Airport'
+      },
+      segments: [
+        {
+          carrier: 'Finnair',
+          transitCode: 'AY1424',
+          from: 'Hamburg (HAM)',
+          to: 'Helsinki (HEL)',
+          departureTime: '12:30',
+          arrivalTime: '15:20',
+          departureTerminal: 'Terminal 1',
+          seatNotes: 'Airbus A321 / ~1h 40m'
+        },
+        {
+          carrier: 'Finnair',
+          transitCode: 'AY041',
+          from: 'Helsinki (HEL)',
+          to: 'Seoul Incheon (ICN)',
+          departureTime: '17:30',
+          arrivalTime: '11:20 (+1)',
+          arrivalTerminal: 'Terminal 1',
+          seatNotes: 'Airbus A350-900 / ~11h 50m'
+        }
+      ]
+    },
     {
       id: 't-ktx',
       fromLegId: 'seoul',
@@ -129,6 +212,7 @@ export const initialTripData: TripData = {
       notes: 'KTX High Speed Rail (~2.5h)',
       carrier: 'Korail KTX',
       transitCode: 'KTX 021',
+      duration: '2h 35m',
       seatNotes: 'First class or reserved standard window'
     },
     {
@@ -141,7 +225,8 @@ export const initialTripData: TripData = {
       carrier: 'Air Busan / Korean Air',
       transitCode: 'BX124',
       departureTerminal: 'PUS Int Terminal',
-      arrivalTerminal: 'KIX Terminal 1'
+      arrivalTerminal: 'KIX Terminal 1',
+      duration: '1h 30m',
     },
     {
       id: 't-shinkansen',
@@ -152,7 +237,24 @@ export const initialTripData: TripData = {
       notes: 'Tokaido Shinkansen bullet train (~2h 15m)',
       carrier: 'JR Central',
       transitCode: 'Nozomi 24',
+      duration: '2h 15m',
       seatNotes: 'Mount Fuji side (Seat E on right heading Tokyo)'
+    },
+    {
+      id: 't-tokyo-sydney',
+      fromLegId: 'tokyo',
+      toLegId: 'sydney',
+      type: 'flight',
+      status: 'confirmed',
+      notes: 'Direct overnight flight (~9.5h) • Departs Jan 7',
+      carrier: 'Qantas Airways',
+      transitCode: 'QF60',
+      departureTime: '2027-01-07 22:00',
+      arrivalTime: '2027-01-08 09:55',
+      departureTerminal: 'HND Terminal 3',
+      arrivalTerminal: 'SYD Terminal 1',
+      duration: '9h 55m (non-stop)',
+      seatNotes: 'Overnight long-haul (Boeing 787-9)'
     }
   ]
 };

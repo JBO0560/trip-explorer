@@ -36,6 +36,7 @@ describe('WhatsAppSnapshotModal Component', () => {
         isOpen={true}
         onClose={vi.fn()}
         trip={initialTripData}
+        activeLegId="seoul"
       />
     );
 
@@ -56,6 +57,7 @@ describe('WhatsAppSnapshotModal Component', () => {
         isOpen={true}
         onClose={vi.fn()}
         trip={initialTripData}
+        activeLegId="seoul"
       />
     );
 
@@ -81,6 +83,7 @@ describe('WhatsAppSnapshotModal Component', () => {
         isOpen={true}
         onClose={vi.fn()}
         trip={initialTripData}
+        activeLegId="seoul"
       />
     );
 
@@ -133,6 +136,7 @@ describe('WhatsAppSnapshotModal Component', () => {
         isOpen={true}
         onClose={vi.fn()}
         trip={initialTripData}
+        activeLegId="seoul"
       />
     );
 
@@ -167,6 +171,7 @@ describe('WhatsAppSnapshotModal Component', () => {
         isOpen={true}
         onClose={vi.fn()}
         trip={initialTripData}
+        activeLegId="seoul"
       />
     );
 

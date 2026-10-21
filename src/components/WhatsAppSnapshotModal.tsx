@@ -56,6 +56,7 @@ export const WhatsAppSnapshotModal: React.FC<WhatsAppSnapshotModalProps> = ({
   const countryBadges = countries.map((c) => {
     if (c.toLowerCase().includes('korea')) return { name: c, flag: '🇰🇷' };
     if (c.toLowerCase().includes('japan')) return { name: c, flag: '🇯🇵' };
+    if (c.toLowerCase().includes('australia')) return { name: c, flag: '🇦🇺' };
     return { name: c, flag: '🌏' };
   });
 
@@ -356,7 +357,13 @@ export const WhatsAppSnapshotModal: React.FC<WhatsAppSnapshotModalProps> = ({
                   </div>
 
                   <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-slate-800 text-white border border-slate-700 flex items-center gap-1">
-                    {currentLeg.country.toLowerCase().includes('korea') ? '🇰🇷' : '🇯🇵'}
+                    {currentLeg.country.toLowerCase().includes('korea')
+                      ? '🇰🇷'
+                      : currentLeg.country.toLowerCase().includes('japan')
+                      ? '🇯🇵'
+                      : currentLeg.country.toLowerCase().includes('australia')
+                      ? '🇦🇺'
+                      : '🌏'}
                     <span>{currentLeg.country}</span>
                   </span>
                 </div>
@@ -498,10 +505,64 @@ export const WhatsAppSnapshotModal: React.FC<WhatsAppSnapshotModalProps> = ({
                               </span>
                             )}
                           </div>
+                          {transit.departureTime && (
+                            <span className="text-[11px] text-slate-300 font-medium flex items-center gap-1">
+                              <Calendar className="w-3 h-3 text-sky-400" />
+                              {transit.departureTime}
+                            </span>
+                          )}
                         </div>
+
+                        {transit.duration && (
+                          <div className="flex items-center gap-1.5 text-[11px] text-indigo-300 bg-indigo-950/60 px-2 py-0.5 rounded border border-indigo-900/50 w-fit">
+                            <Clock className="w-3 h-3 text-indigo-400" />
+                            <span>Travel time: {transit.duration}</span>
+                          </div>
+                        )}
 
                         {transit.notes && (
                           <p className="text-[11px] text-slate-300 leading-snug">{transit.notes}</p>
+                        )}
+
+                        {transit.layover && (
+                          <div className="flex items-center gap-1.5 text-[11px] text-amber-300 bg-amber-950/40 border border-amber-800/40 px-2.5 py-1 rounded-md">
+                            <Clock className="w-3 h-3 text-amber-400" />
+                            <span>
+                              Layover in <strong>{transit.layover.city || transit.layover.airportCode}</strong>
+                              {transit.layover.duration ? ` • ${transit.layover.duration}` : ''}
+                              {transit.layover.notes ? ` (${transit.layover.notes})` : ''}
+                            </span>
+                          </div>
+                        )}
+
+                        {transit.segments && transit.segments.length > 0 && (
+                          <div className="space-y-1 pt-1.5 border-t border-slate-800/60">
+                            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Flight Segments</span>
+                            <div className="space-y-1">
+                              {transit.segments.map((seg, sIdx) => (
+                                <div
+                                  key={sIdx}
+                                  className="flex items-center justify-between text-[11px] text-slate-300 bg-slate-950/60 px-2 py-1 rounded border border-slate-800/60"
+                                >
+                                  <div className="flex items-center gap-1.5">
+                                    <span className="w-4 h-4 rounded-full bg-slate-800 text-slate-400 flex items-center justify-center text-[9px] font-bold">
+                                      {sIdx + 1}
+                                    </span>
+                                    <span className="font-semibold text-white">{seg.from} &rarr; {seg.to}</span>
+                                    {seg.carrier && <span className="text-slate-400 text-[10px]">({seg.carrier})</span>}
+                                  </div>
+                                  <div className="flex items-center gap-2">
+                                    {seg.transitCode && (
+                                      <span className="font-mono text-[10px] text-indigo-300 bg-indigo-950/80 px-1 py-0.5 rounded border border-indigo-800/50">
+                                        {seg.transitCode}
+                                      </span>
+                                    )}
+                                    {seg.departureTime && <span className="text-[10px] text-slate-400">{seg.departureTime}</span>}
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
                         )}
 
                         {transit.seatNotes && (
