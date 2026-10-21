@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { TripData } from './types/trip';
 import { initialTripData } from './data/initialTrip';
 import { MapPin, Calendar, Plane, Train, Camera } from 'lucide-react';
+import { TripMap } from './components/TripMap';
 
 export const App: React.FC = () => {
   const [trip] = useState<TripData>(() => {
@@ -121,39 +122,47 @@ export const App: React.FC = () => {
         </aside>
 
         {/* Center / Right: Map & Detail Panel */}
-        <main className="flex-1 flex flex-col h-full bg-slate-950 relative">
-          {/* Mock Map Canvas / Route Display */}
-          <div className="flex-1 relative flex items-center justify-center p-8 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-900 via-slate-950 to-slate-950">
-            <div className="max-w-xl w-full border border-slate-800 bg-slate-900/60 rounded-2xl p-6 backdrop-blur shadow-2xl space-y-6">
-              <div className="flex items-center justify-between border-b border-slate-800 pb-4">
+        <main className="flex-1 flex flex-col h-full bg-slate-950 relative overflow-hidden">
+          {/* Interactive Leaflet Map */}
+          <div className="absolute inset-0 z-0">
+            <TripMap
+              legs={trip.legs}
+              transfers={trip.transfers}
+              activeLegId={activeLegId}
+              onSelectLeg={(id) => setActiveLegId(id)}
+            />
+          </div>
+
+          {/* Floating Active Leg Info Card Overlay */}
+          <div className="absolute bottom-6 right-6 z-10 max-w-sm w-full pointer-events-auto">
+            <div className="border border-slate-700/80 bg-slate-900/90 rounded-2xl p-4 backdrop-blur shadow-2xl space-y-3">
+              <div className="flex items-center justify-between border-b border-slate-800 pb-3">
                 <div>
-                  <span className="text-xs font-semibold text-indigo-400 tracking-wider uppercase">Active Region</span>
-                  <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                    <MapPin className="w-5 h-5 text-rose-500" />
+                  <span className="text-[10px] font-bold text-indigo-400 tracking-wider uppercase">Active Leg</span>
+                  <h2 className="text-base font-bold text-white flex items-center gap-1.5">
+                    <MapPin className="w-4 h-4 text-rose-500" />
                     {activeLeg?.name}, {activeLeg?.country}
                   </h2>
                 </div>
                 <div className="text-right">
-                  <span className="text-xs text-slate-400">Duration</span>
-                  <p className="text-sm font-semibold text-slate-200">~{activeLeg?.approxDays} Days</p>
+                  <span className="text-[10px] text-slate-400">Duration</span>
+                  <p className="text-xs font-semibold text-slate-200">~{activeLeg?.approxDays} Days</p>
                 </div>
               </div>
 
               <div>
-                <h4 className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Key Highlights</h4>
-                <div className="grid grid-cols-2 gap-2">
+                <h4 className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">Highlights</h4>
+                <div className="flex flex-wrap gap-1.5">
                   {activeLeg?.highlights.map((h, i) => (
-                    <div key={i} className="flex items-center gap-2 p-2 rounded-lg bg-slate-800/40 border border-slate-800 text-xs text-slate-200">
-                      <span className="w-1.5 h-1.5 rounded-full bg-indigo-400"></span>
+                    <span key={i} className="text-[11px] bg-slate-800/80 text-slate-200 px-2 py-0.5 rounded border border-slate-700/60">
                       {h}
-                    </div>
+                    </span>
                   ))}
                 </div>
               </div>
 
-              {/* Transit link preview */}
-              <div className="p-3 rounded-xl bg-slate-800/30 border border-slate-800 flex items-center justify-between text-xs">
-                <span className="text-slate-400">Coordinates:</span>
+              <div className="pt-1 flex items-center justify-between text-[11px] text-slate-400 border-t border-slate-800/80">
+                <span>Coordinates:</span>
                 <span className="font-mono text-slate-300">{activeLeg?.coordinates.join(', ')}</span>
               </div>
             </div>
