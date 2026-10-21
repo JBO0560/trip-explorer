@@ -1,21 +1,11 @@
 import React, { useState } from 'react';
-import { TripData } from './types/trip';
-import { initialTripData } from './data/initialTrip';
+import { useTripData } from './hooks/useTripData';
 import { MapPin, Calendar, Plane, Train, Camera } from 'lucide-react';
 import { TripMap } from './components/TripMap';
+import { WhatsAppSnapshotModal } from './components/WhatsAppSnapshotModal';
 
 export const App: React.FC = () => {
-  const [trip] = useState<TripData>(() => {
-    const saved = localStorage.getItem('trip_explorer_data');
-    if (saved) {
-      try {
-        return JSON.parse(saved);
-      } catch {
-        // fallback
-      }
-    }
-    return initialTripData;
-  });
+  const { trip } = useTripData();
 
   const [activeLegId, setActiveLegId] = useState<string>(trip.legs[0]?.id || '');
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
@@ -171,51 +161,12 @@ export const App: React.FC = () => {
       </div>
 
       {/* WhatsApp Snapshot Card Modal */}
-      {isShareModalOpen && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-slate-900 border border-slate-700 rounded-2xl max-w-md w-full p-6 shadow-2xl relative space-y-4">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-              <h3 className="text-sm font-bold text-white flex items-center gap-2">
-                <Camera className="w-4 h-4 text-indigo-400" /> WhatsApp Sharing Card
-              </h3>
-              <button
-                onClick={() => setIsShareModalOpen(false)}
-                className="text-slate-400 hover:text-white text-xs px-2 py-1 rounded bg-slate-800"
-              >
-                Close
-              </button>
-            </div>
-
-            {/* Visual Card to Screenshot */}
-            <div id="whatsapp-card" className="p-5 rounded-xl bg-gradient-to-br from-slate-950 to-slate-900 border border-slate-700 space-y-4 shadow-xl">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h4 className="font-extrabold text-base text-white tracking-tight">🇰🇷 Korea & 🇯🇵 Japan Trip</h4>
-                  <p className="text-[11px] text-indigo-300">{trip.overallDateRange}</p>
-                </div>
-                <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30">
-                  {trip.status}
-                </span>
-              </div>
-
-              <div className="space-y-2 border-y border-slate-800/80 py-3">
-                {trip.legs.map((leg, i) => (
-                  <div key={leg.id} className="flex items-center justify-between text-xs">
-                    <span className="text-slate-200 font-medium">
-                      {i + 1}. {leg.name} ({leg.country})
-                    </span>
-                    <span className="text-slate-400 font-mono text-[11px]">~{leg.approxDays} days</span>
-                  </div>
-                ))}
-              </div>
-
-              <div className="text-[10px] text-slate-400 text-center">
-                📸 Screenshot & share into WhatsApp group
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      <WhatsAppSnapshotModal
+        isOpen={isShareModalOpen}
+        onClose={() => setIsShareModalOpen(false)}
+        trip={trip}
+        activeLegId={activeLegId}
+      />
     </div>
   );
 };
