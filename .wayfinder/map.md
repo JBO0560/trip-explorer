@@ -17,6 +17,9 @@ An interactive local web application to visualize the Korea & Japan trip itinera
 
 <!-- the index: one line per closed ticket, enough to judge relevance, then zoom the link for the detail the ticket holds -->
 - [WF-01: Tech Stack & Frontend Architecture Selection](file:///Users/jasperboyn/git/poe2-profits/korea&japan%20trip/.wayfinder/tickets/WF-01-tech-stack-and-architecture.md): Settle on Vite + React 19 + TypeScript + Tailwind v4 + Leaflet + Vitest; initialized repo and pushed to `JBO0560/trip-explorer`.
+- [WF-02: Trip & Itinerary Schema Design](file:///Users/jasperboyn/git/poe2-profits/korea&japan%20trip/.wayfinder/tickets/WF-02-itinerary-schema-design.md): Implemented full trip lifecycle state hook `useTripData` with tentative vs confirmed flight/train schemas and 15 passing tests.
+- [WF-03: Interactive Map Visualization & Route Styling](file:///Users/jasperboyn/git/poe2-profits/korea&japan%20trip/.wayfinder/tickets/WF-03-interactive-map-visualization.md): Built interactive React Leaflet map with CartoDB Voyager tiles, bezier curved Korea Strait flight arcs, and KTX/Shinkansen railway styling.
+- [WF-04: WhatsApp Share Mode & Snapshot Card Layout](file:///Users/jasperboyn/git/poe2-profits/korea&japan%20trip/.wayfinder/tickets/WF-04-whatsapp-snapshot-card-layout.md): Built mobile chat export cards (Full Overview, City Deep-Dive, Transit Schedule) with 1-click clipboard copy and PNG download.
 
 ## Not yet specified
 
