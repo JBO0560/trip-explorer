@@ -120,14 +120,14 @@ Use this reference when editing [src/data/initialTrip.ts](../../../src/data/init
 
 ## 3. Country Flag & Badge Support
 
-When introducing a new country, verify flag mappings in:
-1. `src/components/TripMap.tsx` -> `createLegIcon`:
-   ```typescript
-   if (country.includes('korea')) flag = '🇰🇷';
-   else if (country.includes('japan')) flag = '🇯🇵';
-   else if (country.includes('australia')) flag = '🇦🇺';
-   ```
-2. `src/components/WhatsAppSnapshotModal.tsx` -> `countryBadges` and Deep-Dive badge.
+Country flags and badges are automatically resolved worldwide across all 250+ ISO 3166-1 nations and territories using the centralized `getCountryMeta` utility:
+```typescript
+import { getCountryMeta } from '../../utils/countryFlags';
+
+const { flag, badgeColor, isoCode } = getCountryMeta(leg.country);
+// e.g. "Germany" -> 🇩🇪, "Japan" -> 🇯🇵, "Australia" -> 🇦🇺, "Iceland" -> 🇮🇸
+```
+Any standard country name, 2-letter ISO code (`DE`, `JP`), 3-letter code (`AUS`, `USA`), or colloquial alias (`UK`, `Korea`, `UAE`) works out of the box with an automatic `🌏` fallback. Individual components do not need manual `if/else` checks.
 
 ---
 
